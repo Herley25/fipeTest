@@ -9,54 +9,21 @@ import React, {
 
 import {
     Autocomplete,
+    Button,
     TextField,
 } from '@mui/material';
 
+import styles from '../styles/Home.module.css';
 import {
-    Container,
-    Fields,
-    Submit,
-    SubTitle,
-    Title,
-} from '../styles/styles';
-import {
+    IBrand,
+    IBrandField,
+    IModel,
+    IModelField,
+    IModelResponse,
+    IYear,
+    IYearField,
     Props,
 } from './types';
-
-interface IBrand {
-  nome: string;
-  codigo: string;
-}
-
-interface IBrandField {
-  label: string;
-  id: number;
-}
-
-interface IModel {
-  nome: string;
-  codigo: string;
-}
-
-interface IModelField {
-  label: string;
-  id: number;
-}
-
-interface IYear {
-  nome: string;
-  codigo: string;
-}
-
-interface IYearField {
-  label: string;
-  id: number;
-}
-
-interface IModelResponse {
-  anos: IYear[];
-  modelos: IModel[];
-}
 
 const Home = ({
   title = "Tabela Fipe",
@@ -153,10 +120,10 @@ const Home = ({
   };
 
   return (
-    <Container>
-      <Title>{title}</Title>
-      <SubTitle>{subTitle}</SubTitle>
-      <Fields>
+    <div className={styles.container}>
+      <h1>{title}</h1>
+      <h2>{subTitle}</h2>
+      <div>
         <Autocomplete
           disablePortal
           id="cars-marc"
@@ -192,11 +159,11 @@ const Home = ({
           />
         )}
 
-        <Submit variant="contained" disabled={selectedYear == null}>
+        <Button variant="contained" disabled={selectedYear == null}>
           Consultar preço
-        </Submit>
-      </Fields>
-    </Container>
+        </Button>
+      </div>
+    </div>
   );
 };
 
