@@ -36,7 +36,7 @@
 
 // console.log(compiled);
 
-// import axios from "axios";
+import axios from "axios";
 // import fetch from "node-fetch";
 
 // axios.get("https://parallelum.com.br/fipe/api/v1/carros/marcas").then((response) => {
@@ -47,6 +47,11 @@
 //   .then((response) => {
 //     console.log(response);
 //   });
+axios
+  .get("https://parallelum.com.br/fipe/api/v1/carros/marcas/59/modelos/5940/anos/2014-3")
+  .then((response) => {
+    console.log(response);
+  });
 
 // const getPeople = async (people) => {
 //   const response = await fetch("https://rickandmortyapi.com/api/character");
