@@ -13,17 +13,59 @@ import {
 
 import styles from '../styles/Home.module.css';
 import Result from './components/Result';
-import {
-    IBrand,
-    IBrandField,
-    IModel,
-    IModelField,
-    IModelResponse,
-    IPriceCars,
-    IYear,
-    IYearField,
-    Props,
-} from './types';
+
+interface Props {
+  title: string;
+  subTitle: string;
+}
+
+interface IBrand {
+  nome: string;
+  codigo: string;
+}
+
+interface IBrandField {
+  label: string;
+  id: number;
+}
+
+interface IModel {
+  nome: string;
+  codigo: string;
+}
+
+interface IModelField {
+  label: string;
+  id: number;
+}
+
+interface IYear {
+  nome: string;
+  codigo: string;
+}
+
+interface IYearField {
+  label: string;
+  id: string;
+}
+
+interface IModelResponse {
+  anos: IYear[];
+  modelos: IModel[];
+  price: IPriceCars[];
+}
+
+interface IPriceCars {
+  Valor: string;
+  Marca: string;
+  Modelo: string;
+  AnoModelo: number;
+  Combustivel: string;
+  CodigoFipe: string;
+  MesReferencia: string;
+  TipoVeiculo: number;
+  SiglaCombustivel: string;
+}
 
 const Home = ({
   title = "Tabela Fipe",
