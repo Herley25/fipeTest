@@ -31,8 +31,6 @@
   position: absolute;
 }
 
-
-
 @media (max-width: 600px) {
   .grid {
     width: 100%;
