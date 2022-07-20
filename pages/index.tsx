@@ -1,6 +1,4 @@
-import axios, {
-    AxiosResponse,
-} from 'axios';
+import axios from 'axios';
 import React, {
     useCallback,
     useEffect,
@@ -9,54 +7,23 @@ import React, {
 
 import {
     Autocomplete,
+    Button,
     TextField,
 } from '@mui/material';
 
+import styles from '../styles/Home.module.css';
+import Result from './components/Result';
 import {
-    Container,
-    Fields,
-    Submit,
-    SubTitle,
-    Title,
-} from '../styles/styles';
-import {
+    IBrand,
+    IBrandField,
+    IModel,
+    IModelField,
+    IModelResponse,
+    IPriceCars,
+    IYear,
+    IYearField,
     Props,
 } from './types';
-
-interface IBrand {
-  nome: string;
-  codigo: string;
-}
-
-interface IBrandField {
-  label: string;
-  id: number;
-}
-
-interface IModel {
-  nome: string;
-  codigo: string;
-}
-
-interface IModelField {
-  label: string;
-  id: number;
-}
-
-interface IYear {
-  nome: string;
-  codigo: string;
-}
-
-interface IYearField {
-  label: string;
-  id: number;
-}
-
-interface IModelResponse {
-  anos: IYear[];
-  modelos: IModel[];
-}
 
 const Home = ({
   title = "Tabela Fipe",
@@ -65,6 +32,8 @@ const Home = ({
   const [brands, setBrands] = useState<IBrand[]>([]);
   const [models, setModels] = useState<IModel[]>([]);
   const [years, setYears] = useState<IYear[]>([]);
+
+  const [price, setPrice] = useState<IPriceCars | null>();
 
   const [isBrandsLoading, setIsBrandsLoading] = useState(true);
   const [isModelsLoading, setIsModelsLoading] = useState(true);
@@ -131,32 +100,53 @@ const Home = ({
     }
   }, [brands.length, selectedBrand, selectedModel]);
 
-  const brandWrapper = (brands: IBrand[]): IBrandField[] => {
+  const brandWrapper = useCallback((brands: IBrand[]): IBrandField[] => {
     return brands.map((brand) => ({
       label: brand.nome,
       id: parseInt(brand.codigo),
     }));
-  };
+  }, []);
 
-  const modelWrapper = (models: IModel[]): IModelField[] => {
+  const modelWrapper = useCallback((models: IModel[]): IModelField[] => {
     return models.map((model) => ({
       label: model.nome,
       id: parseInt(model.codigo),
     }));
-  };
+  }, []);
 
-  const yearWrapper = (years: IYear[]): IYearField[] => {
+  const yearWrapper = useCallback((years: IYear[]): IYearField[] => {
     return years.map((year) => ({
       label: year.nome,
-      id: parseInt(year.codigo),
+      id: year.codigo,
     }));
+  }, []);
+
+  const handlePrice = async (brandId: number, modelId: number, yearId: string) => {
+    axios
+      .get<IPriceCars>(
+        `https://parallelum.com.br/fipe/api/v1/carros/marcas/${brandId}/modelos/${modelId}/anos/${yearId}`
+      )
+      .then((response) => {
+        return response.data;
+      })
+      .then((data: IPriceCars) => {
+        setPrice(data);
+      })
+      .catch((error) => console.error(error));
   };
 
+  const brand = selectedBrand?.label;
+  const model = selectedModel?.label;
+  const year = selectedYear?.label;
+  const text = "Tabela Fipe: Preço";
+
   return (
-    <Container>
-      <Title>{title}</Title>
-      <SubTitle>{subTitle}</SubTitle>
-      <Fields>
+    <div className={styles.container}>
+      <div className={styles.text}>
+        <h1>{title}</h1>
+        <h2 className={styles.text2}>{subTitle}</h2>
+      </div>
+      <div className={styles.container_input}>
         <Autocomplete
           disablePortal
           id="cars-marc"
@@ -164,24 +154,31 @@ const Home = ({
           disabled={isBrandsLoading}
           onChange={(event: any, newBrand: IBrandField | null) => {
             setSelectedBrand(newBrand);
+            setSelectedModel(null);
+            setSelectedYear(null);
           }}
           sx={{ width: 300 }}
           renderInput={(params) => <TextField {...params} label="Marca" />}
         />
-        <Autocomplete
-          disablePortal
-          id="carrs-model"
-          options={modelWrapper(models)}
-          disabled={selectedBrand == null}
-          onChange={(event: any, newModel: IModelField | null) => {
-            setSelectedModel(newModel);
-          }}
-          sx={{ width: 300 }}
-          renderInput={(params) => <TextField {...params} label="Modelo" />}
-        />
+        <div className={styles.input}>
+          <Autocomplete
+            disablePortal
+            inputValue={selectedModel?.label || ""}
+            id="carrs-model"
+            options={modelWrapper(models)}
+            disabled={selectedBrand == null || isModelsLoading}
+            onChange={(event: any, newModel: IModelField | null) => {
+              setSelectedModel(newModel);
+              setSelectedYear(null);
+            }}
+            sx={{ width: 300 }}
+            renderInput={(params) => <TextField {...params} label="Modelo" />}
+          />
+        </div>
         {selectedModel != null && (
           <Autocomplete
             disablePortal
+            disabled={isYearsLoading}
             id="carrs-years"
             options={yearWrapper(years)}
             onChange={(event: any, newYear: IYearField | null) => {
@@ -191,12 +188,28 @@ const Home = ({
             renderInput={(params) => <TextField {...params} label="Ano" />}
           />
         )}
-
-        <Submit variant="contained" disabled={selectedYear == null}>
-          Consultar preço
-        </Submit>
-      </Fields>
-    </Container>
+        <div className={styles.button}>
+          <Button
+            variant="contained"
+            disabled={selectedYear == null}
+            onClick={() =>
+              handlePrice(Number(selectedBrand?.id), Number(selectedModel?.id), selectedYear!.id)
+            }
+          >
+            Consultar preço
+          </Button>
+        </div>
+        {price != null && (
+          <>
+            <Result
+              title={text + " " + brand + " " + model + " " + year}
+              price={price.Valor}
+              text="Este é o preço de compra deste veículo"
+            />
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 
